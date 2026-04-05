@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ΠΑΡΑΓΚΑ | Customer + Admin Live System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:opsz,wght@14..32,400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(145deg, #0a2f0a 0%, #031003 100%);
+            font-family: 'Inter', sans-serif;
+            padding: 16px;
+            min-height: 100vh;
+            color: #FFD966; /* base yellow */
+        }
+        .app-wrapper { max-width: 1600px; margin: 0 auto; }
+        .mode-switch { display: flex; gap: 16px; justify-content: flex-end; margin-bottom: 20px; }
+        .mode-btn {
+            background: #2c2b1f;
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mode-btn.active {
+            background: #FFD700;
+            color: #1f3a1a;
+            border-color: white;
+        }
+        .stadium-container {
+            background: rgba(10, 30, 8, 0.95);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            overflow: hidden;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255,215,0,0.3);
+        }
+        .scoreboard-header {
+            background: #0c1f0a;
+            border-bottom: 4px solid #FFD700;
+            padding: 1rem 1.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo-football h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #FFE484, #FFAA33);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-football p { font-size: 0.7rem; color: #FFD966; }
+        .stadium-badge {
+            background: #000000aa;
+            backdrop-filter: blur(8px);
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #FFD700;
+            border-left: 3px solid #FFD700;
+        }
+        .hidden { display: none; }
+        .pitch-grid { display: grid; grid-template-columns: 280px 1fr 340px; gap: 0; }
+        .team-panel, .menu-panel, .sideline-panel { padding: 20px 16px; }
+        .team-panel { background: #122e0ed9; border-right: 2px dashed #FFD700; }
+        .menu-panel { background: #1d3a1ad9; border-right: 1px solid #FFD70066; }
+        .sideline-panel { background: #173a14cc; }
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.3rem;
+            color: #FFD700;
+            border-left: 5px solid #FFD700;
+            padding-left: 12px;
+            margin-bottom: 18px;
+            text-shadow: 0 0 3px #b8860b;
+        }
+        .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; }
+        .table-card {
+            background: #1c3818;
+            border: 2px solid #FFC107;
+            border-radius: 20px;
+            padding: 12px 4px;
+            text-align: center;
+            cursor: pointer;
+            color: #FFE0A3;
+            transition: 0.1s;
+        }
+        .table-card.active { background: #FFD700; color: #1f3a1a; border-color: #fff0b5; box-shadow: 0 0 10px gold; }
+        .table-card.active i { color: #1f3a1a; }
+        .link-icon { font-size: 0.7rem; margin-top: 5px; cursor: pointer; display: inline-block; background: #00000066; border-radius: 20px; padding: 2px 8px; }
+        .menu-item {
+            background: #1e3a1a;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 16px;
+            margin-bottom: 10px;
+            border-left: 6px solid #FFD700;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .product-img { width: 52px; height: 52px; border-radius: 30px; background: #2c5422; overflow: hidden; border: 1px solid #FFD700; }
+        .product-img img { width: 100%; height: 100%; object-fit: cover; }
+        .item-info h4 { color: #FFE484; font-weight: 700; }
+        .item-info p { color: #FFD966; font-size: 0.7rem; }
+        .item-price { font-weight: 800; font-size: 1.1rem; color: #FFD700; }
+        .add-btn { background: #FFD700; border: none; width: 38px; height: 38px; border-radius: 50%; font-weight: bold; font-size: 1.3rem; cursor: pointer; color: #1f3a1a; transition: 0.1s; }
+        .add-btn:hover { background: #FFC107; transform: scale(1.02); }
+        .smart-suggestions, .cart-box { background: #0b2209; border-radius: 28px; padding: 16px; border: 1px solid #FFD700; }
+        .smart-title { font-family: 'Bebas Neue', cursive; color: #FFD700; font-size: 1.1rem; display: flex; gap: 8px; margin-bottom: 12px; }
+        .suggestion-chip { background: #2e5524; border-radius: 40px; padding: 6px 14px; font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px solid #FFD700; color: #FFEFC0; display: inline-block; margin: 4px; }
+        .cart-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #FFD70066; color: #FFE0A3; }
+        .cart-total { font-weight: 800; font-size: 1.2rem; border-top: 2px solid #FFD700; padding-top: 10px; text-align: right; color: #FFD700; }
+        .btn-order { background: #FFD700; border: none; padding: 12px; border-radius: 60px; font-weight: bold; cursor: pointer; flex: 2; color: #1f3a1a; }
+        .btn-clear { background: #3a2f1a; color: #FFD700; border: 1px solid #FFD700; padding: 12px; border-radius: 60px; cursor: pointer; flex: 1; }
+        .history-zone { background: #0b2008; border-top: 3px solid #FFD700; padding: 18px 24px; }
+        .history-card { background: #1b3817; border-radius: 20px; padding: 10px 16px; margin-bottom: 8px; border-left: 5px solid #FFD700; color: #FFE0A3; }
+        .admin-stats { display: flex; gap: 20px; background: #0b1f08; padding: 16px; border-radius: 28px; margin: 16px; color: #FFD700; font-weight: bold; }
+        .order-card-admin { background: #1e3a1a; border-radius: 24px; padding: 12px; margin-bottom: 12px; border-left: 6px solid #FFD700; color: #FFE0A3; }
+        .menu-editor { margin: 16px; background: #102a0e; border-radius: 28px; padding: 16px; }
+        input, select {
+            background: #2c3a1f;
+            border: 1px solid #FFD700;
+            padding: 10px;
+            border-radius: 40px;
+            width: 100%;
+            margin: 5px 0;
+            color: #FFEFC0;
+            font-weight: 500;
+        }
+        input::placeholder { color: #FFD966; opacity: 0.9; }
+        .cat-btn {
+            background: #2c4624;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #FFE484;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .cat-btn.active, .cat-btn:hover { background: #FFD700; color: #1f3a1a; }
+        .search-box { background: #0f200c; border-radius: 60px; padding: 8px 18px; display: flex; gap: 8px; margin-bottom: 20px; border: 1px solid #FFD700; }
+        .search-box input { background: transparent; border: none; padding: 0; margin: 0; color: #FFEFC0; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .share-viber, .print-order { background: #2e5524; border: 1px solid #FFD700; color: #FFD700; padding: 6px 12px; border-radius: 40px; font-size: 0.7rem; cursor: pointer; }
+        @media (max-width: 950px) { .pitch-grid { grid-template-columns: 1fr; } }
+        .empty-message { color: #FFD966; text-align: center; padding: 20px; }
+        .table-admin-item { background: #0f200c; border-radius: 40px; padding: 8px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div class="mode-switch">
+        <button id="customerModeBtn" class="mode-btn active"><i class="fas fa-utensils"></i> ΠΕΛΑΤΗΣ</button>
+        <button id="adminModeBtn" class="mode-btn"><i class="fas fa-tachometer-alt"></i> ADMIN PANEL</button>
+    </div>
+
+    <!-- CUSTOMER VIEW -->
+    <div id="customerView" class="customer-view">
+        <div class="stadium-container">
+            <div class="scoreboard-header">
+                <div class="logo-football"><h1><i class="fas fa-futbol"></i> ΠΑΡΑΓΚΑ</h1><p>FOOTBALL CAFE · LIVE ORDERS</p></div>
+                <div class="stadium-badge"><i class="fas fa-share-alt"></i> LINK ΑΝΑ ΤΡΑΠΕΖΙ</div>
+            </div>
+            <div class="pitch-grid">
+                <div class="team-panel">
+                    <div class="section-title"><i class="fas fa-tshirt"></i> ΤΡΑΠΕΖΙΑ & LINK</div>
+                    <div class="tables-grid" id="customerTables"></div>
+                    <div style="font-size:11px; text-align:center; margin-top:12px; color:#FFD966;"><i class="fas fa-copy"></i> Κλικ στο 🔗 για αντιγραφή link</div>
+                </div>
+                <div class="menu-panel">
+                    <div class="search-box">
+                        <i class="fas fa-search" style="color:#FFD700;"></i>
+                        <input type="text" id="searchInput" placeholder="Αναζήτηση...">
+                    </div>
+                    <div class="menu-categories" id="categoriesContainer" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;"></div>
+                    <div class="items-list" id="menuItemsList" style="max-height:55vh; overflow-y:auto;"></div>
+                </div>
+                <div class="sideline-panel">
+                    <div class="smart-suggestions">
+                        <div class="smart-title"><i class="fas fa-robot"></i> ΕΞΥΠΝΕΣ ΠΡΟΤΑΣΕΙΣ</div>
+                        <div class="suggestion-buttons" id="suggestionsList"></div>
+                    </div>
+                    <div class="cart-box">
+                        <div class="smart-title"><i class="fas fa-shopping-cart"></i> ΚΑΛΑΘΙ (ΤΡΑΠΕΖΙ <span id="activeTableLabel">-</span>)</div>
+                        <div id="cartList"></div>
+                        <div id="cartTotal" class="cart-total">€0.00</div>
+                        <div style="display:flex; gap:10px; margin-top:16px;">
+                            <button id="clearCartBtn" class="btn-clear">Κίτρινη Κάρτα</button>
+                            <button id="submitOrderBtn" class="btn-order">ΥΠΟΒΟΛΗ (GOAL!)</button>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="shareViberBtn" class="share-viber"><i class="fab fa-viber"></i> Κοινή χρήση σε Viber</button>
+                            <button id="printOrderBtn" class="print-order"><i class="fas fa-print"></i> Εκτύπωση παραγγελίας</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="history-zone">
+                <div class="section-title"><i class="fas fa-history"></i> ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ (ΤΡΑΠΕΖΙ <span id="historyTableLabel">-</span>)</div>
+                <div id="historyList" class="history-list" style="max-height:170px; overflow-y:auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN VIEW -->
+    <div id="adminView" class="admin-view hidden">
+        <div class="stadium-container">
+            <div class="scoreboard-header">
+                <div class="logo-football"><h1><i class="fas fa-crown"></i> ADMIN PANEL</h1><p>ΔΙΑΧΕΙΡΙΣΗ ΠΑΡΑΓΓΕΛΙΩΝ, ΜΕΝΟΥ & ΤΡΑΠΕΖΙΩΝ</p></div>
+                <div class="stadium-badge"><i class="fas fa-sync-alt"></i> LIVE SYNC</div>
+            </div>
+            <div class="admin-stats">
+                <div><i class="fas fa-hourglass-half"></i> Εκκρεμείς: <span id="pendingCount">0</span></div>
+                <div><i class="fas fa-check-circle"></i> Ολοκληρωμένες: <span id="completedCount">0</span></div>
+            </div>
+            <div class="orders-list-admin" id="adminOrdersList"></div>
+            <div class="menu-editor">
+                <div class="section-title"><i class="fas fa-edit"></i> ΕΠΕΞΕΡΓΑΣΙΑ ΜΕΝΟΥ</div>
+                <div id="adminMenuList"></div>
+                <div style="margin-top: 20px; background:#0f200c; border-radius:28px; padding:16px;">
+                    <h4 style="color:#FFD700;">➕ Προσθήκη νέου προϊόντος</h4>
+                    <input type="text" id="newName" placeholder="Όνομα">
+                    <input type="number" id="newPrice" placeholder="Τιμή €" step="0.01">
+                    <select id="newCategory"><option>καφές</option><option>αναψυκτικά</option><option>σνακ</option><option>γλυκό</option></select>
+                    <input type="text" id="newImage" placeholder="URL εικόνας" value="https://picsum.photos/id/21/80/80">
+                    <button id="addProductBtn" style="background:#FFD700; border:none; padding:10px; border-radius:60px; width:100%; margin-top:10px; font-weight:bold;">Προσθήκη</button>
+                </div>
+            </div>
+            <div class="menu-editor" style="margin-top: 20px;">
+                <div class="section-title"><i class="fas fa-chair"></i> ΔΙΑΧΕΙΡΙΣΗ ΤΡΑΠΕΖΙΩΝ</div>
+                <div id="adminTablesList"></div>
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                    <input type="number" id="newTableNumber" placeholder="Αριθμός τραπεζιού" style="flex:2;">
+                    <button id="addTableBtn" style="background:#FFD700; border:none; padding:10px; border-radius:60px; font-weight:bold;">Προσθήκη τραπεζιού</button>
+                </div>
+                <div style="margin-top: 8px;"><small>⚠️ Η αφαίρεση τραπεζιού δεν διαγράφει παραγγελίες, μόνο την εμφάνιση.</small></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- INITIAL DATA ----------
+    let menuItems = [
+        { id: "c1", name: "Ελληνικός Καφές", price: 2.50, category: "καφές", img: "https://picsum.photos/id/225/80/80" },
+        { id: "c2", name: "Φρέντο Εσπρέσσο", price: 3.20, category: "καφές", img: "https://picsum.photos/id/431/80/80" },
+        { id: "c3", name: "Cappuccino", price: 3.50, category: "καφές", img: "https://picsum.photos/id/428/80/80" },
+        { id: "s1", name: "Coca Cola", price: 2.80, category: "αναψυκτικά", img: "https://picsum.photos/id/122/80/80" },
+        { id: "sn1", name: "Τόστ τυρί & ζαμπόν", price: 4.50, category: "σνακ", img: "https://picsum.photos/id/127/80/80" },
+        { id: "sw1", name: "Σιροπιαστό Γλυκό", price: 3.80, category: "γλυκό", img: "https://picsum.photos/id/106/80/80" }
+    ];
+    let allOrders = [];
+    let currentTableId = 1;
+    let currentCart = [];
+    let tables = [1,2,3,4,5,6,7,8];   // dynamic tables
+
+    // Storage functions
+    function saveMenu() { localStorage.setItem("PARAGA_MENU", JSON.stringify(menuItems)); }
+    function loadMenu() { const stored = localStorage.getItem("PARAGA_MENU"); if(stored) menuItems = JSON.parse(stored); else saveMenu(); }
+    function saveOrders() { localStorage.setItem("PARAGA_ORDERS_ADMIN", JSON.stringify(allOrders)); }
+    function loadOrders() { const stored = localStorage.getItem("PARAGA_ORDERS_ADMIN"); if(stored) allOrders = JSON.parse(stored); else { allOrders = []; saveOrders(); } }
+    function saveTables() { localStorage.setItem("PARAGA_TABLES", JSON.stringify(tables)); }
+    function loadTables() { const stored = localStorage.getItem("PARAGA_TABLES"); if(stored) tables = JSON.parse(stored); else saveTables(); }
+
+    // Carts per table session
+    function saveCartForTable() { let map = JSON.parse(sessionStorage.getItem("FOOT_CARTS") || "{}"); map[currentTableId] = currentCart; sessionStorage.setItem("FOOT_CARTS", JSON.stringify(map)); }
+    function loadCartForTable() { let map = JSON.parse(sessionStorage.getItem("FOOT_CARTS") || "{}"); currentCart = map[currentTableId] || []; renderCart(); }
+
+    // Smart suggestions
+    function getSmartSuggestions(tableId) {
+        let tableOrders = allOrders.filter(o => o.tableId === tableId);
+        if(!tableOrders.length) return [];
+        let freq = new Map();
+        for(let order of tableOrders) for(let item of order.items) { let existing = freq.get(item.id) || { id:item.id, name:item.name, price:item.price, count:0 }; existing.count += item.quantity; freq.set(item.id, existing); }
+        return Array.from(freq.values()).sort((a,b)=>b.count-a.count).slice(0,3);
+    }
+    function renderSmartSuggestions() {
+        let container = document.getElementById("suggestionsList");
+        if(!container) return;
+        if(!currentTableId) { container.innerHTML = "<span style='color:#FFD966;'>⚽ επίλεξε τραπέζι</span>"; return; }
+        let suggestions = getSmartSuggestions(currentTableId);
+        if(!suggestions.length) { container.innerHTML = "<span style='color:#FFD966;'>🔥 Δοκίμασε τα κλασικά</span>"; return; }
+        container.innerHTML = suggestions.map(s => `<div class="suggestion-chip" data-id="${s.id}" data-name="${s.name}" data-price="${s.price}">⚽ ${s.name} (€${s.price.toFixed(2)})</div>`).join('');
+        document.querySelectorAll('.suggestion-chip').forEach(el => el.addEventListener('click', () => addToCart({ id:el.dataset.id, name:el.dataset.name, price:parseFloat(el.dataset.price) })));
+    }
+
+    function addToCart(item) { let exist = currentCart.find(i => i.id === item.id); if(exist) exist.quantity++; else currentCart.push({ ...item, quantity:1 }); renderCart(); saveCartForTable(); }
+    function renderCart() { let cartDiv = document.getElementById("cartList"); if(!cartDiv) return; if(!currentCart.length) { cartDiv.innerHTML = "<div class='empty-message'>Κενό καλάθι</div>"; document.getElementById("cartTotal").innerHTML = "€0.00"; return; }
+        let html = "", total=0; currentCart.forEach((it,idx)=>{ let sub=it.price*it.quantity; total+=sub; html+=`<div class="cart-row"><span>${it.name} x${it.quantity}</span><span>€${sub.toFixed(2)} <button class="remove-item" data-idx="${idx}" style="background:none; border:none; color:#FFD700;"><i class="fas fa-minus-circle"></i></button></span></div>`; });
+        cartDiv.innerHTML = html; document.getElementById("cartTotal").innerHTML = `€${total.toFixed(2)}`;
+        document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', (e) => { let idx = parseInt(btn.dataset.idx); currentCart.splice(idx,1); renderCart(); saveCartForTable(); }));
+    }
+    function clearCart() { currentCart = []; renderCart(); saveCartForTable(); }
+
+    function submitOrder() {
+        if(!currentCart.length) return alert("Πρόσθεσε προϊόντα!");
+        let total = currentCart.reduce((s,i)=>s+(i.price*i.quantity),0);
+        let newOrder = { id: "ord_"+Date.now()+"_"+Math.random().toString(36).substr(2,6), tableId: currentTableId, items: JSON.parse(JSON.stringify(currentCart)), total: total, timestamp: Date.now(), status: "pending" };
+        allOrders.push(newOrder); saveOrders(); clearCart(); renderHistoryForTable(currentTableId); renderSmartSuggestions(); triggerAdminRefresh();
+        alert(`✅ Παραγγελία για τραπέζι ${currentTableId} υποβλήθηκε! Σύνολο: €${total.toFixed(2)}`);
+        localStorage.setItem("PARAGA_TRIGGER", Date.now().toString());
+    }
+
+    function renderHistoryForTable(tableId) { let histDiv = document.getElementById("historyList"); if(!histDiv) return; let filtered = allOrders.filter(o=>o.tableId===tableId).sort((a,b)=>b.timestamp-a.timestamp); if(!filtered.length) { histDiv.innerHTML = "<div class='empty-message'>Καμία παραγγελία</div>"; return; }
+        histDiv.innerHTML = filtered.map(o=>{ let date = new Date(o.timestamp).toLocaleTimeString('el',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'}); return `<div class="history-card"><div>${date} | Σύνολο €${o.total.toFixed(2)}</div><div style="font-size:0.7rem;">${o.items.map(i=>`${i.name} x${i.quantity}`).join(', ')}</div><div>${o.status === 'pending' ? '⏳ Εκκρεμεί' : '✓ Ολοκληρώθηκε'}</div></div>`; }).join('');
+    }
+
+    // Admin functions
+    function renderAdminOrders() { let container = document.getElementById("adminOrdersList"); if(!container) return; let pending = allOrders.filter(o=>o.status==="pending"); let completed = allOrders.filter(o=>o.status==="completed"); document.getElementById("pendingCount").innerText = pending.length; document.getElementById("completedCount").innerText = completed.length;
+        let all = [...pending, ...completed].sort((a,b)=>b.timestamp-a.timestamp);
+        if(!all.length) { container.innerHTML = "<div class='empty-message'>Δεν υπάρχουν παραγγελίες</div>"; return; }
+        container.innerHTML = all.map(order => `<div class="order-card-admin"><div><strong>Τραπέζι ${order.tableId}</strong> | ${new Date(order.timestamp).toLocaleString()}</div><div>${order.items.map(i=>`${i.name} x${i.quantity}`).join(', ')}</div><div>Σύνολο: €${order.total.toFixed(2)} | Κατάσταση: ${order.status === 'pending' ? '⏳ Εκκρεμεί' : '✅ Ολοκληρώθηκε'}</div>${order.status === 'pending' ? `<button class="complete-order" data-id="${order.id}" style="background:#FFD700; border:none; border-radius:40px; padding:6px 16px; margin-top:8px;">Ολοκλήρωση</button>` : ''}</div>`).join('');
+        document.querySelectorAll('.complete-order').forEach(btn => btn.addEventListener('click', (e) => { let id = btn.dataset.id; let ord = allOrders.find(o=>o.id===id); if(ord) ord.status = "completed"; saveOrders(); renderAdminOrders(); triggerCustomerHistoryRefresh(); }));
+    }
+
+    function renderAdminMenu() { let container = document.getElementById("adminMenuList"); if(!container) return; container.innerHTML = menuItems.map(item => `<div class="menu-admin-item" style="display:flex; gap:10px; align-items:center; justify-content:space-between; background:#0f200c; margin:8px 0; padding:8px; border-radius:40px;"><img src="${item.img}" width="40" height="40" style="border-radius:20px; border:1px solid #FFD700;"> <span><b>${item.name}</b> (${item.category}) €${item.price.toFixed(2)}</span> <button class="delete-menu-item" data-id="${item.id}" style="background:#aa2e2e; border:none; border-radius:30px; padding:6px 12px; color:white;"><i class="fas fa-trash"></i></button></div>`).join('');
+        document.querySelectorAll('.delete-menu-item').forEach(btn => btn.addEventListener('click', (e) => { let id = btn.dataset.id; menuItems = menuItems.filter(m=>m.id !== id); saveMenu(); renderAdminMenu(); renderCustomerMenu(); triggerMenuUpdate(); }));
+    }
+
+    function renderAdminTables() {
+        let container = document.getElementById("adminTablesList");
+        if(!container) return;
+        container.innerHTML = tables.map(t => `<div class="table-admin-item"><span><i class="fas fa-chair"></i> Τραπέζι ${t}</span><button class="remove-table-btn" data-table="${t}" style="background:#aa2e2e; border:none; border-radius:30px; padding:6px 12px; color:white;">Αφαίρεση</button></div>`).join('');
+        document.querySelectorAll('.remove-table-btn').forEach(btn => btn.addEventListener('click', (e) => { let tbl = parseInt(btn.dataset.table); if(tables.length <= 1) return alert("Δεν μπορείτε να διαγράψετε το μοναδικό τραπέζι"); tables = tables.filter(t => t !== tbl); saveTables(); renderCustomerTables(); renderAdminTables(); if(currentTableId === tbl) { currentTableId = tables[0]; renderCustomerTables(); loadCartForTable(); renderHistoryForTable(currentTableId); renderSmartSuggestions(); } }));
+    }
+
+    function addTable() { let newNum = parseInt(document.getElementById("newTableNumber").value); if(isNaN(newNum)) return alert("Βάλτε αριθμό"); if(tables.includes(newNum)) return alert("Το τραπέζι υπάρχει ήδη"); tables.push(newNum); tables.sort((a,b)=>a-b); saveTables(); renderCustomerTables(); renderAdminTables(); document.getElementById("newTableNumber").value=""; }
+    function addProduct() { let name = document.getElementById("newName").value; let price = parseFloat(document.getElementById("newPrice").value); let category = document.getElementById("newCategory").value; let img = document.getElementById("newImage").value; if(!name || isNaN(price)) return alert("Συμπλήρωσε όνομα και τιμή"); let newId = "p"+Date.now(); menuItems.push({ id:newId, name, price, category, img }); saveMenu(); renderAdminMenu(); renderCustomerMenu(); triggerMenuUpdate(); document.getElementById("newName").value=""; document.getElementById("newPrice").value=""; }
+
+    // Customer UI
+    function renderCustomerMenu() { let activeCat = window.activeCategory || "όλα"; let searchTerm = window.searchTerm || ""; let filtered = menuItems.filter(i=> activeCat==="όλα"? true : i.category===activeCat); if(searchTerm) { let term = searchTerm.toLowerCase(); filtered = filtered.filter(i=> i.name.toLowerCase().includes(term)); } let container = document.getElementById("menuItemsList"); if(!container) return; if(!filtered.length) { container.innerHTML = "<div class='empty-message'>Κανένα προϊόν</div>"; return; }
+        container.innerHTML = filtered.map(item => `<div class="menu-item"><div class="product-img"><img src="${item.img}" alt="img"></div><div class="item-info"><h4>${item.name}</h4><p>${item.category}</p></div><div class="item-price">€${item.price.toFixed(2)}</div><button class="add-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">+</button></div>`).join('');
+        document.querySelectorAll('.add-btn').forEach(btn => btn.addEventListener('click', () => addToCart({ id:btn.dataset.id, name:btn.dataset.name, price:parseFloat(btn.dataset.price) })));
+    }
+    function renderCustomerCategories() { let cats = ["όλα", ...new Set(menuItems.map(m=>m.category))]; let container = document.getElementById("categoriesContainer"); if(!container) return; container.innerHTML = cats.map(cat => `<button class="cat-btn ${(window.activeCategory||"όλα")===cat?'active':''}" data-cat="${cat}">${cat.toUpperCase()}</button>`).join('');
+        document.querySelectorAll('.cat-btn').forEach(btn => btn.addEventListener('click', (e) => { window.activeCategory = btn.dataset.cat; renderCustomerCategories(); renderCustomerMenu(); })); }
+
+    function renderCustomerTables() { let container = document.getElementById("customerTables"); if(!container) return; container.innerHTML = ""; for(let t of tables) { let activeClass = currentTableId===t ? 'active' : ''; let div = document.createElement('div'); div.className = `table-card ${activeClass}`; div.innerHTML = `<i class="fas fa-${t%2===0?'tshirt':'futbol'}"></i> ΤΡΑΠΕΖΙ ${t}<div class="link-icon" data-table="${t}"><i class="fas fa-link"></i> link</div>`; div.addEventListener('click', (e) => { if(e.target.classList.contains('link-icon')) return; currentTableId = t; renderCustomerTables(); loadCartForTable(); renderHistoryForTable(currentTableId); renderSmartSuggestions(); document.getElementById("activeTableLabel").innerText = t; document.getElementById("historyTableLabel").innerText = t; }); div.querySelector('.link-icon').addEventListener('click', (e) => { e.stopPropagation(); let url = new URL(window.location.href); url.searchParams.set("table", t); navigator.clipboard.writeText(url.href); alert(`🔗 Link για τραπέζι ${t} αντιγράφηκε!`); }); container.appendChild(div); } document.getElementById("activeTableLabel").innerText = currentTableId; document.getElementById("historyTableLabel").innerText = currentTableId; }
+
+    // Viber share & print order
+    function shareOnViber() { if(!currentCart.length) return alert("Δεν υπάρχουν προϊόντα στο καλάθι"); let message = `🟡 ΠΑΡΑΓΓΕΛΙΑ από τραπέζι ${currentTableId}\n` + currentCart.map(i=>`${i.name} x${i.quantity} = ${(i.price*i.quantity).toFixed(2)}€`).join('\n') + `\nΣύνολο: ${currentCart.reduce((s,i)=>s+(i.price*i.quantity),0).toFixed(2)}€`; let viberLink = `viber://forward?text=${encodeURIComponent(message)}`; window.open(viberLink, '_blank'); }
+    function printOrderHTML() { if(!currentCart.length) return alert("Κανένα προϊόν για εκτύπωση"); let printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>Παραγγελία τραπέζι ${currentTableId}</title><style>body{font-family:monospace; padding:20px;} h1{color:#b8860b;} table{border-collapse:collapse;} td,th{padding:8px; border-bottom:1px solid #ccc;}</style></head><body><h1>ΠΑΡΑΓΚΑ - Παραγγελία</h1><p>Τραπέζι: ${currentTableId} | Ημερομηνία: ${new Date().toLocaleString()}</p><table><tr><th>Προϊόν</th><th>Ποσότητα</th><th>Τιμή</th><th>Σύνολο</th></tr>${currentCart.map(i=>`<tr><td>${i.name}</td><td>${i.quantity}</td><td>${i.price.toFixed(2)}€</td><td>${(i.price*i.quantity).toFixed(2)}€</td></tr>`).join('')}<tr><td colspan="3"><strong>Γενικό Σύνολο</strong></td><td><strong>${currentCart.reduce((s,i)=>s+(i.price*i.quantity),0).toFixed(2)}€</strong></td></tr></table><p>Ευχαριστούμε!</p></body></html>`); printWindow.document.close(); printWindow.print(); }
+
+    // Cross-tab sync
+    function triggerAdminRefresh() { renderAdminOrders(); }
+    function triggerCustomerHistoryRefresh() { renderHistoryForTable(currentTableId); renderSmartSuggestions(); }
+    function triggerMenuUpdate() { renderCustomerMenu(); renderCustomerCategories(); }
+    window.addEventListener('storage', (e) => { if(e.key === "PARAGA_MENU") { loadMenu(); renderCustomerMenu(); renderCustomerCategories(); if(document.getElementById("adminView") && !document.getElementById("adminView").classList.contains("hidden")) renderAdminMenu(); } if(e.key === "PARAGA_ORDERS_ADMIN") { loadOrders(); renderHistoryForTable(currentTableId); renderSmartSuggestions(); if(document.getElementById("adminView") && !document.getElementById("adminView").classList.contains("hidden")) renderAdminOrders(); } if(e.key === "PARAGA_TRIGGER") { loadOrders(); renderHistoryForTable(currentTableId); renderSmartSuggestions(); if(document.getElementById("adminView") && !document.getElementById("adminView").classList.contains("hidden")) renderAdminOrders(); } if(e.key === "PARAGA_TABLES") { loadTables(); renderCustomerTables(); if(document.getElementById("adminView") && !document.getElementById("adminView").classList.contains("hidden")) renderAdminTables(); } });
+
+    // Mode toggle
+    function setMode(mode) { if(mode === 'customer') { document.getElementById("customerView").classList.remove("hidden"); document.getElementById("adminView").classList.add("hidden"); document.getElementById("customerModeBtn").classList.add("active"); document.getElementById("adminModeBtn").classList.remove("active"); renderCustomerTables(); loadCartForTable(); renderCustomerMenu(); renderCustomerCategories(); renderHistoryForTable(currentTableId); renderSmartSuggestions(); } else { document.getElementById("customerView").classList.add("hidden"); document.getElementById("adminView").classList.remove("hidden"); document.getElementById("adminModeBtn").classList.add("active"); document.getElementById("customerModeBtn").classList.remove("active"); renderAdminOrders(); renderAdminMenu(); renderAdminTables(); } }
+
+    // Event listeners
+    document.getElementById("customerModeBtn").addEventListener('click', () => setMode('customer'));
+    document.getElementById("adminModeBtn").addEventListener('click', () => setMode('admin'));
+    document.getElementById("clearCartBtn")?.addEventListener('click', clearCart);
+    document.getElementById("submitOrderBtn")?.addEventListener('click', submitOrder);
+    document.getElementById("addProductBtn")?.addEventListener('click', addProduct);
+    document.getElementById("addTableBtn")?.addEventListener('click', addTable);
+    document.getElementById("shareViberBtn")?.addEventListener('click', shareOnViber);
+    document.getElementById("printOrderBtn")?.addEventListener('click', printOrderHTML);
+    document.getElementById("searchInput")?.addEventListener('input', (e) => { window.searchTerm = e.target.value; renderCustomerMenu(); });
+
+    // Initialization
+    loadMenu(); loadOrders(); loadTables();
+    let urlParams = new URLSearchParams(window.location.search); let tableParam = parseInt(urlParams.get("table")); if(tableParam && tables.includes(tableParam)) currentTableId = tableParam;
+    window.activeCategory = "όλα"; window.searchTerm = "";
+    renderCustomerTables(); loadCartForTable(); renderCustomerMenu(); renderCustomerCategories(); renderHistoryForTable(currentTableId); renderSmartSuggestions();
+    setMode('customer');
+</script>
+</body>
+</html>
